@@ -1,5 +1,5 @@
 use std::fs;
-//use itertools::Itertools;
+use itertools::Itertools;
 
 fn main() {
     println!("Part 1 Result: {:?}", part1(&read_input_file()));
@@ -25,15 +25,14 @@ fn part1(input: &str) -> usize {
     *parse(input)
         .iter()
         .max()
-        .expect("could not determine max value, no elements?")
+        .unwrap()
 }
 
 fn part2(input: &str) -> usize {
-    let mut calories = parse(input);
-    calories.sort_by(|a, b| b.cmp(a));
-
-    calories
+    parse(input)
         .iter()
+        .sorted()
+        .rev()
         .take(3)
         .sum()
 }
