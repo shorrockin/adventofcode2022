@@ -1,5 +1,5 @@
-use std::fs;
 use itertools::Itertools;
+use std::fs;
 
 fn main() {
     println!("Part 1 Result: {:?}", part1(&read_input_file()));
@@ -14,32 +14,26 @@ fn parse(input: &str) -> Vec<usize> {
     input
         .trim() // clean up test input
         .split("\n\n")
-        .map(|group| group 
-             .split("\n")
-             .map(|value| value.parse::<usize>().unwrap())
-             .sum())
+        .map(|group| {
+            group
+                .split("\n")
+                .map(|value| value.parse::<usize>().unwrap())
+                .sum()
+        })
         .collect()
 }
 
 fn part1(input: &str) -> usize {
-    *parse(input)
-        .iter()
-        .max()
-        .unwrap()
+    *parse(input).iter().max().unwrap()
 }
 
 fn part2(input: &str) -> usize {
-    parse(input)
-        .iter()
-        .sorted()
-        .rev()
-        .take(3)
-        .sum()
+    parse(input).iter().sorted().rev().take(3).sum()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*; 
+    use super::*;
     use indoc::indoc;
 
     static EXAMPLE: &str = indoc! {"
@@ -75,7 +69,7 @@ mod tests {
     fn test_part_2_example() {
         let result = part2(EXAMPLE);
         assert_eq!(result, 45000);
-    } 
+    }
 
     #[test]
     fn test_part_2() {
@@ -83,4 +77,3 @@ mod tests {
         assert_eq!(result, 210406);
     }
 }
-
