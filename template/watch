@@ -1,0 +1,1 @@
+ls ./src/*.rs | entr -s 'clear && cargo build && cargo test -- --nocapture'
