@@ -1,1 +1,1 @@
-ls ./src/*.rs | entr -s 'clear && cargo build && cargo test -- --nocapture'
+ls ./src/*.rs | entr -s 'clear && cargo build && rustfmt --force --write-mode=overwrite ./src/*.rs && cargo test -- --nocapture'
