@@ -1,37 +1,33 @@
 use std::ops::Range;
 
 pub fn part_one(input: &str) -> usize {
-    parse(input, &full_overlap)
+    parse(input, |first, second| {
+        (first.start >= second.start && first.end <= second.end)
+            || (second.start >= first.start && second.end <= first.end)
+    })
 }
 
 pub fn part_two(input: &str) -> usize {
-    parse(input, &partial_overlap)
+    parse(input, |first, second| {
+        (first.start >= second.start && first.start <= second.end)
+            || (first.end >= second.start && first.end <= second.end)
+            || (second.start >= first.start && second.start <= first.end)
+            || (second.end >= first.start && second.end <= first.end)
+    })
 }
 
-fn parse(input: &str, filter: &dyn Fn(&Range<u32>, &Range<u32>) -> bool) -> usize {
+fn parse(input: &str, filter: fn(&Range<u32>, &Range<u32>) -> bool) -> usize {
+    fn str_to_range(range_string: &str) -> Range<u32> {
+        let (from, to) = range_string.split_once('-').unwrap();
+        from.parse().unwrap()..to.parse().unwrap()
+    }
+
     input
         .lines()
         .map(|line| line.split_once(',').unwrap())
         .map(|(first, second)| (str_to_range(first), str_to_range(second)))
         .filter(|(first, second)| filter(first, second))
         .count()
-}
-
-fn str_to_range(range_string: &str) -> Range<u32> {
-    let (from, to) = range_string.split_once('-').unwrap();
-    from.parse().unwrap()..to.parse().unwrap()
-}
-
-fn partial_overlap(first: &Range<u32>, second: &Range<u32>) -> bool {
-    (first.start >= second.start && first.start <= second.end)
-        || (first.end >= second.start && first.end <= second.end)
-        || (second.start >= first.start && second.start <= first.end)
-        || (second.end >= first.start && second.end <= first.end)
-}
-
-fn full_overlap(first: &Range<u32>, second: &Range<u32>) -> bool {
-    (first.start >= second.start && first.end <= second.end)
-        || (second.start >= first.start && second.end <= first.end)
 }
 
 #[cfg(test)]
