@@ -1,15 +1,14 @@
 use itertools::Itertools;
 
 pub fn first_unique_index(source: &str, count: usize) -> usize {
-    let characters: Vec<char> = source.chars().collect();
-    let first_occurrence: String = characters
+    source
+        .chars()
+        .collect::<Vec<char>>()
         .windows(count)
         .map(|window| window.iter().unique().collect())
-        .filter(|value: &String| value.len() == count)
-        .next()
-        .unwrap();
-
-    source.find(&first_occurrence).unwrap() + count
+        .find(|value: &String| value.len() == count)
+        .map(|value| source.find(&value).unwrap() + count)
+        .unwrap()
 }
 
 #[cfg(test)]
