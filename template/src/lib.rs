@@ -1,3 +1,5 @@
+pub mod utils;
+
 pub fn part_one(_input: &str) -> i32 {
     -1
 }
@@ -8,9 +10,9 @@ pub fn part_two(_input: &str) -> i32 {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
     use super::*;
     use indoc::indoc;
+    use std::fs;
 
     static EXAMPLE: &str = indoc! {"
     "};
