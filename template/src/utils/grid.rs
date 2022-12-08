@@ -2,7 +2,11 @@ use std::collections::HashMap;
 
 pub mod directions {
     pub static NORTH: (i32, i32) = (0, -1);
+    pub static NORTH_WEST: (i32, i32) = (-1, -1);
+    pub static NORTH_EAST: (i32, i32) = (1, -1);
     pub static SOUTH: (i32, i32) = (0, 1);
+    pub static SOUTH_WEST: (i32, i32) = (-1, 1);
+    pub static SOUTH_EAST: (i32, i32) = (1, 1);
     pub static EAST: (i32, i32) = (1, 0);
     pub static WEST: (i32, i32) = (-1, 0);
 }
