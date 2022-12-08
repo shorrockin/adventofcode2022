@@ -1,26 +1,29 @@
 use std::collections::HashMap;
 
+type Coordinate = (i32, i32);
+type Direction = (i32, i32);
+
 pub mod directions {
-    pub static NORTH: (i32, i32) = (0, -1);
-    pub static NORTH_WEST: (i32, i32) = (-1, -1);
-    pub static NORTH_EAST: (i32, i32) = (1, -1);
-    pub static SOUTH: (i32, i32) = (0, 1);
-    pub static SOUTH_WEST: (i32, i32) = (-1, 1);
-    pub static SOUTH_EAST: (i32, i32) = (1, 1);
-    pub static EAST: (i32, i32) = (1, 0);
-    pub static WEST: (i32, i32) = (-1, 0);
+    pub static NORTH: super::Direction = (0, -1);
+    pub static NORTH_WEST: super::Direction = (-1, -1);
+    pub static NORTH_EAST: super::Direction = (1, -1);
+    pub static SOUTH: super::Direction = (0, 1);
+    pub static SOUTH_WEST: super::Direction = (-1, 1);
+    pub static SOUTH_EAST: super::Direction = (1, 1);
+    pub static EAST: super::Direction = (1, 0);
+    pub static WEST: super::Direction = (-1, 0);
 }
 
 #[derive(Debug)]
 pub struct Grid<P: Point> {
-    pub points: HashMap<(i32, i32), P>,
+    pub points: HashMap<Coordinate, P>,
     pub max_width: i32,
     pub max_height: i32,
 }
 
 pub trait Point {
     fn symbol(&self) -> String;
-    fn coord(&self) -> (i32, i32);
+    fn coord(&self) -> Coordinate;
     fn distance(&self, other: &Self) -> i32 {
         let other_coord = other.coord();
         let self_coord = self.coord();
@@ -35,7 +38,7 @@ impl<P: Point> Grid<P> {
     {
         let mut max_width = 0;
         let mut max_height = 0;
-        let mut points: HashMap<(i32, i32), P> = HashMap::new();
+        let mut points: HashMap<Coordinate, P> = HashMap::new();
         input.lines().enumerate().for_each(|(line_index, line)| {
             line.chars().enumerate().for_each(|(char_index, symbol)| {
                 let x = char_index.try_into().unwrap();
@@ -52,11 +55,11 @@ impl<P: Point> Grid<P> {
         }
     }
 
-    pub fn at(&self, position: (i32, i32)) -> Option<&P> {
+    pub fn at(&self, position: Coordinate) -> Option<&P> {
         self.points.get(&position)
     }
 
-    pub fn at_relative(&self, relative_to: &P, direction: (i32, i32)) -> Option<&P> {
+    pub fn at_relative(&self, relative_to: &P, direction: Direction) -> Option<&P> {
         let relative_pos = relative_to.coord();
         self.at((relative_pos.0 + direction.0, relative_pos.1 + direction.1))
     }
@@ -103,14 +106,13 @@ impl<P: Point> Grid<P> {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BasicPoint {
-    x: i32,
-    y: i32,
+    coord: Coordinate,
     symbol: char,
 }
 
 impl Point for BasicPoint {
-    fn coord(&self) -> (i32, i32) {
-        (self.x, self.y)
+    fn coord(&self) -> Coordinate {
+        self.coord
     }
 
     fn symbol(&self) -> String {
@@ -120,7 +122,10 @@ impl Point for BasicPoint {
 
 impl BasicPoint {
     pub fn new(x: i32, y: i32, symbol: char) -> BasicPoint {
-        BasicPoint { x, y, symbol }
+        BasicPoint {
+            coord: (x, y),
+            symbol,
+        }
     }
 }
 
