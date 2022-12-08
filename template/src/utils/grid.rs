@@ -13,13 +13,13 @@ pub mod directions {
 
 #[derive(Debug)]
 pub struct Grid<P: Point> {
-    points: HashMap<(i32, i32), P>,
-    max_width: i32,
-    max_height: i32,
+    pub points: HashMap<(i32, i32), P>,
+    pub max_width: i32,
+    pub max_height: i32,
 }
 
 pub trait Point {
-    fn symbol(&self) -> char;
+    fn symbol(&self) -> String;
     fn coord(&self) -> (i32, i32);
     fn distance(&self, other: &Self) -> i32 {
         let other_coord = other.coord();
@@ -52,13 +52,13 @@ impl<P: Point> Grid<P> {
         }
     }
 
-    pub fn at(&self, x: i32, y: i32) -> Option<&P> {
-        self.points.get(&(x, y))
+    pub fn at(&self, position: (i32, i32)) -> Option<&P> {
+        self.points.get(&position)
     }
 
     pub fn at_relative(&self, relative_to: &P, direction: (i32, i32)) -> Option<&P> {
         let relative_pos = relative_to.coord();
-        self.at(relative_pos.0 + direction.0, relative_pos.1 + direction.1)
+        self.at((relative_pos.0 + direction.0, relative_pos.1 + direction.1))
     }
 
     pub fn north(&self, source: &P) -> Option<&P> {
@@ -77,18 +77,27 @@ impl<P: Point> Grid<P> {
         self.at_relative(source, directions::WEST)
     }
 
-    pub fn pretty_print(&self) -> String {
+    // renders the grid in its original form, renderer provided if you want to
+    // add coloring, or change from the initial symbol used to populated
+    pub fn render<R>(&self, render: R) -> String
+    where
+        R: Fn(&P) -> String,
+    {
         let string_list: Vec<String> = (0..=self.max_height)
             .map(|y| {
                 (0..=self.max_width)
-                    .map(|x| match self.at(x, y) {
-                        Some(point) => point.symbol(),
-                        None => ' ',
+                    .map(|x| match self.at((x, y)) {
+                        Some(point) => render(point),
+                        None => " ".to_string(),
                     })
                     .collect::<String>()
             })
             .collect();
         string_list.join("\n")
+    }
+
+    pub fn pretty_print(&self) -> String {
+        self.render(|p| p.symbol())
     }
 }
 
@@ -104,8 +113,8 @@ impl Point for BasicPoint {
         (self.x, self.y)
     }
 
-    fn symbol(&self) -> char {
-        self.symbol
+    fn symbol(&self) -> String {
+        String::from(self.symbol)
     }
 }
 
@@ -129,20 +138,20 @@ mod tests {
     #[test]
     fn test_grid_from_string() {
         let grid = Grid::from(GRID_STR, BasicPoint::new);
-        assert_eq!(Some(&BasicPoint::new(0, 0, 'A')), grid.at(0, 0));
-        assert_eq!(Some(&BasicPoint::new(6, 2, 'U')), grid.at(6, 2));
-        assert_eq!(Some(&BasicPoint::new(3, 1, 'K')), grid.at(3, 1));
+        assert_eq!(Some(&BasicPoint::new(0, 0, 'A')), grid.at((0, 0)));
+        assert_eq!(Some(&BasicPoint::new(6, 2, 'U')), grid.at((6, 2)));
+        assert_eq!(Some(&BasicPoint::new(3, 1, 'K')), grid.at((3, 1)));
     }
 
     #[test]
     fn test_grid_movement() {
         let grid = Grid::from(GRID_STR, BasicPoint::new);
-        assert_eq!(None, grid.north(grid.at(0, 0).unwrap()));
-        assert_eq!(None, grid.west(grid.at(0, 0).unwrap()));
-        assert_eq!('H', grid.south(grid.at(0, 0).unwrap()).unwrap().symbol);
-        assert_eq!('B', grid.east(grid.at(0, 0).unwrap()).unwrap().symbol);
-        assert_eq!('A', grid.north(grid.at(0, 1).unwrap()).unwrap().symbol);
-        assert_eq!('A', grid.west(grid.at(1, 0).unwrap()).unwrap().symbol);
+        assert_eq!(None, grid.north(grid.at((0, 0)).unwrap()));
+        assert_eq!(None, grid.west(grid.at((0, 0)).unwrap()));
+        assert_eq!('H', grid.south(grid.at((0, 0)).unwrap()).unwrap().symbol);
+        assert_eq!('B', grid.east(grid.at((0, 0)).unwrap()).unwrap().symbol);
+        assert_eq!('A', grid.north(grid.at((0, 1)).unwrap()).unwrap().symbol);
+        assert_eq!('A', grid.west(grid.at((1, 0)).unwrap()).unwrap().symbol);
     }
 
     #[test]
