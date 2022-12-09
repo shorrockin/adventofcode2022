@@ -6,9 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cargo-nextest = "0.9.45"
-eyre = "0.6.8"
 indoc = "1.0.7"
-itertools = "0.10.5"
-lazy_static = "1.4.0"
-regex = "1.7.0"
+
+[dev_dependencies]
+cargo-nextest = "0.9.45"

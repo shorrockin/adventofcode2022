@@ -12,13 +12,12 @@ pub fn part_two(_input: &str) -> i32 {
 mod tests {
     use super::*;
     use indoc::indoc;
-    use std::fs;
 
     static EXAMPLE: &str = indoc! {"
     "};
 
     fn read_input_file() -> String {
-        fs::read_to_string("input.txt").expect("oops - file could not be read")
+        include_str!("../input.txt").to_string()
     }
 
     #[test]

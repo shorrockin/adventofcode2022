@@ -1,5 +1,4 @@
 use core::cmp::Ordering;
-use std::cell::RefCell;
 use std::collections::HashSet;
 
 pub fn part_one(input: &str) -> usize {
@@ -10,9 +9,8 @@ pub fn part_two(input: &str) -> usize {
     solve(input, vec![(0, 0); 10])
 }
 
-fn solve(input: &str, rope: Rope) -> usize {
-    let rope: RefCell<Rope> = RefCell::new(rope);
-    let visited: RefCell<HashSet<Coordinate>> = RefCell::new(HashSet::from_iter(vec![(0, 0)]));
+fn solve(input: &str, mut rope: Rope) -> usize {
+    let mut visited: HashSet<Coordinate> = HashSet::from_iter(vec![(0, 0)]);
 
     input
         .lines()
@@ -21,28 +19,22 @@ fn solve(input: &str, rope: Rope) -> usize {
             (command[0], command[1].parse::<i32>().unwrap())
         })
         .for_each(|split_line| match split_line {
-            ("R", num_moves) => move_head(&rope, (1, 0), num_moves, &visited),
-            ("U", num_moves) => move_head(&rope, (0, -1), num_moves, &visited),
-            ("D", num_moves) => move_head(&rope, (0, 1), num_moves, &visited),
-            ("L", num_moves) => move_head(&rope, (-1, 0), num_moves, &visited),
+            ("R", num_moves) => move_head(&mut rope, (1, 0), num_moves, &mut visited),
+            ("U", num_moves) => move_head(&mut rope, (0, -1), num_moves, &mut visited),
+            ("D", num_moves) => move_head(&mut rope, (0, 1), num_moves, &mut visited),
+            ("L", num_moves) => move_head(&mut rope, (-1, 0), num_moves, &mut visited),
             _ => panic!("unknown direction {:?}", split_line),
         });
 
-    // need to borrow into temporary variable otherwise value does not live
-    // long enough
-    let borrowed_visited = visited.borrow();
-    borrowed_visited.len()
+    visited.len()
 }
 
 fn move_head(
-    rope: &RefCell<Rope>,
+    rope: &mut Rope,
     direction: (i32, i32),
     num_moves: i32,
-    visited: &RefCell<HashSet<Coordinate>>,
+    visited: &mut HashSet<Coordinate>,
 ) {
-    let mut visited = visited.borrow_mut();
-    let mut rope = rope.borrow_mut();
-
     for _ in 0..num_moves {
         for idx in 0..rope.len() {
             match idx {
@@ -98,7 +90,6 @@ impl Plottable for (i32, i32) {
 mod tests {
     use super::*;
     use indoc::indoc;
-    use std::fs;
 
     static EXAMPLE_PART_ONE: &str = indoc! {"
         R 4
@@ -123,7 +114,7 @@ mod tests {
     "};
 
     fn read_input_file() -> String {
-        fs::read_to_string("input.txt").expect("oops - file could not be read")
+        include_str!("../input.txt").to_string()
     }
 
     #[test]

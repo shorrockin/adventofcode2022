@@ -430,11 +430,7 @@ name = "day-09"
 version = "0.1.0"
 dependencies = [
  "cargo-nextest",
- "eyre",
  "indoc",
- "itertools",
- "lazy_static",
- "regex",
 ]
 
 [[package]]
