@@ -1,4 +1,3 @@
-use core::cmp::Ordering;
 use std::collections::HashSet;
 
 pub fn part_one(input: &str) -> usize {
@@ -44,8 +43,8 @@ fn move_head(
                     let current = rope[idx];
                     let delta = previous.delta(&current);
                     if delta > 1 {
-                        let move_x = compare_value(previous.0, current.0);
-                        let move_y = compare_value(previous.1, current.1);
+                        let move_x = (previous.0 - current.0).signum();
+                        let move_y = (previous.1 - current.1).signum();
                         rope[idx] = current.move_by(&(move_x, move_y));
 
                         // track if the tail moves only
@@ -56,14 +55,6 @@ fn move_head(
                 }
             }
         }
-    }
-}
-
-fn compare_value(source: i32, destination: i32) -> i32 {
-    match source.cmp(&destination) {
-        Ordering::Equal => 0,
-        Ordering::Greater => 1,
-        Ordering::Less => -1,
     }
 }
 
