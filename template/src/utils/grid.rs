@@ -1,17 +1,28 @@
 use std::collections::HashMap;
 
-type Coordinate = (i32, i32);
-type Direction = (i32, i32);
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Coordinate(pub i32, pub i32);
+
+impl core::ops::Add<Direction> for Coordinate {
+    type Output = Coordinate;
+    fn add(self, direction: Direction) -> Coordinate {
+        Coordinate(self.0 + direction.0, self.1 + direction.1)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Direction(pub i32, pub i32);
 
 pub mod directions {
-    pub static NORTH: super::Direction = (0, -1);
-    pub static NORTH_WEST: super::Direction = (-1, -1);
-    pub static NORTH_EAST: super::Direction = (1, -1);
-    pub static SOUTH: super::Direction = (0, 1);
-    pub static SOUTH_WEST: super::Direction = (-1, 1);
-    pub static SOUTH_EAST: super::Direction = (1, 1);
-    pub static EAST: super::Direction = (1, 0);
-    pub static WEST: super::Direction = (-1, 0);
+    use super::*;
+    pub static NORTH: Direction = Direction(0, -1);
+    pub static NORTH_WEST: Direction = Direction(-1, -1);
+    pub static NORTH_EAST: Direction = Direction(1, -1);
+    pub static SOUTH: Direction = Direction(0, 1);
+    pub static SOUTH_WEST: Direction = Direction(-1, 1);
+    pub static SOUTH_EAST: Direction = Direction(1, 1);
+    pub static EAST: Direction = Direction(1, 0);
+    pub static WEST: Direction = Direction(-1, 0);
 }
 
 #[derive(Debug)]
@@ -34,18 +45,17 @@ pub trait Point {
 impl<P: Point> Grid<P> {
     pub fn from<F>(input: &str, creator: F) -> Grid<P>
     where
-        F: Fn(i32, i32, char) -> P,
+        F: Fn(Coordinate, char) -> P,
     {
         let mut max_width = 0;
         let mut max_height = 0;
         let mut points: HashMap<Coordinate, P> = HashMap::new();
         input.lines().enumerate().for_each(|(line_index, line)| {
             line.chars().enumerate().for_each(|(char_index, symbol)| {
-                let x = char_index.try_into().unwrap();
-                let y = line_index.try_into().unwrap();
-                max_width = if max_width > x { max_width } else { x };
-                max_height = if max_height > y { max_height } else { y };
-                points.insert((x, y), creator(x, y, symbol));
+                let coord = Coordinate(char_index as i32, line_index as i32);
+                max_width = max_width.max(coord.0);
+                max_height = max_height.max(coord.1);
+                points.insert(coord, creator(coord, symbol));
             })
         });
         Grid {
@@ -61,7 +71,7 @@ impl<P: Point> Grid<P> {
 
     pub fn at_relative(&self, relative_to: &P, direction: Direction) -> Option<&P> {
         let relative_pos = relative_to.coord();
-        self.at((relative_pos.0 + direction.0, relative_pos.1 + direction.1))
+        self.at(relative_pos + direction)
     }
 
     pub fn north(&self, source: &P) -> Option<&P> {
@@ -89,7 +99,7 @@ impl<P: Point> Grid<P> {
         let string_list: Vec<String> = (0..=self.max_height)
             .map(|y| {
                 (0..=self.max_width)
-                    .map(|x| match self.at((x, y)) {
+                    .map(|x| match self.at(Coordinate(x, y)) {
                         Some(point) => render(point),
                         None => " ".to_string(),
                     })
@@ -121,42 +131,63 @@ impl Point for BasicPoint {
 }
 
 impl BasicPoint {
-    pub fn new(x: i32, y: i32, symbol: char) -> BasicPoint {
-        BasicPoint {
-            coord: (x, y),
-            symbol,
-        }
+    pub fn new(coord: Coordinate, symbol: char) -> BasicPoint {
+        BasicPoint { coord, symbol }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use indoc::indoc;
 
-    static GRID_STR: &str = indoc! {"
-        ABCDEFG
-        HIJKLMN
-        OPQRSTU
-    "};
+    static GRID_STR: &str = "ABCDEFG\nHIJKLMN\nOPQRSTU";
 
     #[test]
     fn test_grid_from_string() {
         let grid = Grid::from(GRID_STR, BasicPoint::new);
-        assert_eq!(Some(&BasicPoint::new(0, 0, 'A')), grid.at((0, 0)));
-        assert_eq!(Some(&BasicPoint::new(6, 2, 'U')), grid.at((6, 2)));
-        assert_eq!(Some(&BasicPoint::new(3, 1, 'K')), grid.at((3, 1)));
+        assert_eq!(
+            Some(&BasicPoint::new(Coordinate(0, 0), 'A')),
+            grid.at(Coordinate(0, 0))
+        );
+        assert_eq!(
+            Some(&BasicPoint::new(Coordinate(6, 2), 'U')),
+            grid.at(Coordinate(6, 2))
+        );
+        assert_eq!(
+            Some(&BasicPoint::new(Coordinate(3, 1), 'K')),
+            grid.at(Coordinate(3, 1))
+        );
     }
 
     #[test]
     fn test_grid_movement() {
         let grid = Grid::from(GRID_STR, BasicPoint::new);
-        assert_eq!(None, grid.north(grid.at((0, 0)).unwrap()));
-        assert_eq!(None, grid.west(grid.at((0, 0)).unwrap()));
-        assert_eq!('H', grid.south(grid.at((0, 0)).unwrap()).unwrap().symbol);
-        assert_eq!('B', grid.east(grid.at((0, 0)).unwrap()).unwrap().symbol);
-        assert_eq!('A', grid.north(grid.at((0, 1)).unwrap()).unwrap().symbol);
-        assert_eq!('A', grid.west(grid.at((1, 0)).unwrap()).unwrap().symbol);
+        assert_eq!(None, grid.north(grid.at(Coordinate(0, 0)).unwrap()));
+        assert_eq!(None, grid.west(grid.at(Coordinate(0, 0)).unwrap()));
+        assert_eq!(
+            'H',
+            grid.south(grid.at(Coordinate(0, 0)).unwrap())
+                .unwrap()
+                .symbol
+        );
+        assert_eq!(
+            'B',
+            grid.east(grid.at(Coordinate(0, 0)).unwrap())
+                .unwrap()
+                .symbol
+        );
+        assert_eq!(
+            'A',
+            grid.north(grid.at(Coordinate(0, 1)).unwrap())
+                .unwrap()
+                .symbol
+        );
+        assert_eq!(
+            'A',
+            grid.west(grid.at(Coordinate(1, 0)).unwrap())
+                .unwrap()
+                .symbol
+        );
     }
 
     #[test]
@@ -169,7 +200,8 @@ mod tests {
     fn test_point_distance() {
         assert_eq!(
             3,
-            BasicPoint::new(1, 1, 'A').distance(&BasicPoint::new(2, 3, 'B'))
+            BasicPoint::new(Coordinate(1, 1), 'A')
+                .distance(&BasicPoint::new(Coordinate(2, 3), 'B'))
         );
     }
 }
