@@ -27,11 +27,11 @@ mod tests {
 
     #[test]
     fn test_part_two_example() {
-        assert_eq!(99, part_one(EXAMPLE_INPUT));
+        assert_eq!(99, part_two(EXAMPLE_INPUT));
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(99, part_one(INPUT));
+        assert_eq!(99, part_two(INPUT));
     }
 }
