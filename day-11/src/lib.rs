@@ -25,7 +25,7 @@ pub fn part_two(input: &str) -> u64 {
 
 fn solve(input: &str, rounds: usize, div_amount: u64) -> u64 {
     let mut monkeys = parse(input);
-    let lcm = monkeys.iter().map(|m| m.test).product::<u64>();
+    let divisors = monkeys.iter().map(|m| m.test).product::<u64>();
 
     for _round in 0..rounds {
         for monkey_idx in 0..monkeys.len() {
@@ -36,13 +36,13 @@ fn solve(input: &str, rounds: usize, div_amount: u64) -> u64 {
                 .iter()
                 .map(|item| {
                     let worry_level = match monkey.operation {
-                        Operation::Square => item.wrapping_mul(*item) / div_amount,
-                        Operation::Multiply(amount) => item.wrapping_mul(amount) / div_amount,
-                        Operation::Sum(amount) => item.wrapping_add(amount) / div_amount,
+                        Operation::Square => (item * item) / div_amount,
+                        Operation::Multiply(amount) => (item * amount) / div_amount,
+                        Operation::Sum(amount) => (item + amount) / div_amount,
                     };
                     match (worry_level % monkey.test) == 0 {
-                        true => (monkey.throw_true, worry_level % lcm),
-                        false => (monkey.throw_false, worry_level % lcm),
+                        true => (monkey.throw_true, worry_level % divisors),
+                        false => (monkey.throw_false, worry_level % divisors),
                     }
                 })
                 .collect();
