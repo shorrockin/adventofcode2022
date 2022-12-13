@@ -12,7 +12,7 @@ pub fn part_two(_input: &str) -> usize {
 mod tests {
     use super::*;
 
-    static EXAMPLE_INPUT: &str = include_str!("../input.txt");
+    static EXAMPLE_INPUT: &str = include_str!("../input.example.txt");
     static INPUT: &str = include_str!("../input.txt");
 
     #[test]
@@ -22,16 +22,16 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        assert_eq!(99, part_one(INPUT));
+        // assert_eq!(99, part_one(INPUT));
     }
 
     #[test]
     fn test_part_two_example() {
-        assert_eq!(99, part_two(EXAMPLE_INPUT));
+        // assert_eq!(99, part_two(EXAMPLE_INPUT));
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(99, part_two(INPUT));
+        // assert_eq!(99, part_two(INPUT));
     }
 }
