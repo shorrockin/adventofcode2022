@@ -33,20 +33,20 @@ impl Packet {
             .filter(|str| !str.is_empty())
             .collect::<Vec<_>>();
 
-        let mut previous: Vec<Box<Vec<Component>>> = vec![];
+        let mut previous: Vec<Vec<Component>> = vec![];
         let mut current = vec![];
 
         for symbol in symbols {
             match symbol {
                 "[" => {
                     let next: Vec<Component> = vec![];
-                    previous.push(Box::new(current));
+                    previous.push(current);
                     current = next;
                 }
                 "]" => {
-                    let mut parent_box = previous.pop().unwrap();
-                    parent_box.push(List((*current).to_vec()));
-                    current = *parent_box;
+                    let mut parent = previous.pop().unwrap();
+                    parent.push(List(current));
+                    current = parent;
                 }
                 _ => {
                     current.push(Value(symbol.parse::<u32>().unwrap()));
