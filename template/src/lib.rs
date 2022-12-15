@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 pub mod utils;
 
 pub fn part_one(_input: &str) -> usize {
