@@ -137,13 +137,13 @@ impl<P: Point> Grid<P> {
         self.points.insert(at, point);
     }
 
-    pub fn at(&self, position: Coordinate) -> Option<&P> {
+    pub fn at(&self, position: &Coordinate) -> Option<&P> {
         self.points.get(&position)
     }
 
     pub fn at_relative(&self, relative_to: &P, direction: Direction) -> Option<&P> {
         let relative_pos = relative_to.coord();
-        self.at(relative_pos + direction)
+        self.at(&(relative_pos + direction))
     }
 
     pub fn north(&self, source: &P) -> Option<&P> {
@@ -171,7 +171,7 @@ impl<P: Point> Grid<P> {
         let string_list: Vec<String> = (self.min_height..=self.max_height)
             .map(|y| {
                 (self.min_width..=self.max_width)
-                    .map(|x| match self.at(Coordinate(x, y)) {
+                    .map(|x| match self.at(&Coordinate(x, y)) {
                         Some(point) => render(point),
                         None => " ",
                     })
@@ -224,44 +224,44 @@ mod tests {
         let grid = Grid::from(GRID_STR, BasicPoint::new);
         assert_eq!(
             Some(&BasicPoint::new(Coordinate(0, 0), 'A')),
-            grid.at(Coordinate(0, 0))
+            grid.at(&Coordinate(0, 0))
         );
         assert_eq!(
             Some(&BasicPoint::new(Coordinate(6, 2), 'U')),
-            grid.at(Coordinate(6, 2))
+            grid.at(&Coordinate(6, 2))
         );
         assert_eq!(
             Some(&BasicPoint::new(Coordinate(3, 1), 'K')),
-            grid.at(Coordinate(3, 1))
+            grid.at(&Coordinate(3, 1))
         );
     }
 
     #[test]
     fn test_grid_movement() {
         let grid = Grid::from(GRID_STR, BasicPoint::new);
-        assert_eq!(None, grid.north(grid.at(Coordinate(0, 0)).unwrap()));
-        assert_eq!(None, grid.west(grid.at(Coordinate(0, 0)).unwrap()));
+        assert_eq!(None, grid.north(grid.at(&Coordinate(0, 0)).unwrap()));
+        assert_eq!(None, grid.west(grid.at(&Coordinate(0, 0)).unwrap()));
         assert_eq!(
             'H',
-            grid.south(grid.at(Coordinate(0, 0)).unwrap())
+            grid.south(grid.at(&Coordinate(0, 0)).unwrap())
                 .unwrap()
                 .character
         );
         assert_eq!(
             'B',
-            grid.east(grid.at(Coordinate(0, 0)).unwrap())
+            grid.east(grid.at(&Coordinate(0, 0)).unwrap())
                 .unwrap()
                 .character
         );
         assert_eq!(
             'A',
-            grid.north(grid.at(Coordinate(0, 1)).unwrap())
+            grid.north(grid.at(&Coordinate(0, 1)).unwrap())
                 .unwrap()
                 .character
         );
         assert_eq!(
             'A',
-            grid.west(grid.at(Coordinate(1, 0)).unwrap())
+            grid.west(grid.at(&Coordinate(1, 0)).unwrap())
                 .unwrap()
                 .character
         );
