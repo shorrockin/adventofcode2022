@@ -21,7 +21,7 @@ impl Instruction {
                 match (eval_left.im.is_zero(), eval_right.im.is_zero()) {
                     (true, false) => eval_right.scale(eval_left.re),
                     (_, true) => eval_left.scale(eval_right.re),
-                    _ => eval_right * eval_left,
+                    _ => panic!("should not have cases where both sides contain imaginary numbers"),
                 }
             }
             Instruction::Divide(left, right) => {
