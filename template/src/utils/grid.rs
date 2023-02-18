@@ -61,6 +61,40 @@ impl CoordinateIterator {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Direction(pub i32, pub i32);
+impl Direction {
+    pub fn turn_right(&self) -> Direction {
+        if *self == directions::NORTH {
+            directions::EAST
+        } else if *self == directions::EAST {
+            directions::SOUTH
+        } else if *self == directions::SOUTH {
+            directions::WEST
+        } else if *self == directions::WEST {
+            directions::NORTH
+        } else {
+            panic!("can't rotate a inter-cardinal direction")
+        }
+    }
+
+    pub fn turn_left(&self) -> Direction {
+        if *self == directions::NORTH {
+            directions::WEST
+        } else if *self == directions::EAST {
+            directions::NORTH
+        } else if *self == directions::SOUTH {
+            directions::EAST
+        } else if *self == directions::WEST {
+            directions::SOUTH
+        } else {
+            panic!("can't rotate a inter-cardinal direction")
+        }
+    }
+}
+impl std::fmt::Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("Direction({},{})", self.0, self.1))
+    }
+}
 
 pub mod directions {
     use super::*;
@@ -91,6 +125,9 @@ pub trait Point {
         let self_coord = self.coord();
         (other_coord.0 - self_coord.0).abs() + (other_coord.1 - self_coord.1).abs()
     }
+    fn ignore(&self) -> bool {
+        false
+    }
 }
 
 impl<P: Point> Grid<P> {
@@ -104,9 +141,12 @@ impl<P: Point> Grid<P> {
         input.lines().enumerate().for_each(|(line_index, line)| {
             line.chars().enumerate().for_each(|(char_index, symbol)| {
                 let coord = Coordinate(char_index as i32, line_index as i32);
-                max_width = max_width.max(coord.0);
-                max_height = max_height.max(coord.1);
-                points.insert(coord, creator(coord, symbol));
+                let point = creator(coord, symbol);
+                if !point.ignore() {
+                    max_width = max_width.max(coord.0);
+                    max_height = max_height.max(coord.1);
+                    points.insert(coord, creator(coord, symbol));
+                }
             })
         });
         Grid {
@@ -138,7 +178,7 @@ impl<P: Point> Grid<P> {
     }
 
     pub fn at(&self, position: &Coordinate) -> Option<&P> {
-        self.points.get(&position)
+        self.points.get(position)
     }
 
     pub fn at_relative(&self, relative_to: &P, direction: Direction) -> Option<&P> {
@@ -160,6 +200,28 @@ impl<P: Point> Grid<P> {
 
     pub fn west(&self, source: &P) -> Option<&P> {
         self.at_relative(source, directions::WEST)
+    }
+
+    pub fn out_of_bounds(&self, coordinate: Coordinate) -> bool {
+        coordinate.0 > self.max_width
+            || coordinate.0 < self.min_width
+            || coordinate.1 > self.max_height
+            || coordinate.1 < self.min_height
+    }
+
+    // scans from a starting point, in a direction, and returns the first point found
+    pub fn scan(&self, starting: Coordinate, direction: Direction) -> Option<&P> {
+        let mut current = starting;
+
+        loop {
+            if let Some(point) = self.at(&current) {
+                return Some(point);
+            }
+            current = current + direction;
+            if self.out_of_bounds(current) {
+                return None;
+            }
+        }
     }
 
     // renders the grid in its original form, renderer provided if you want to
