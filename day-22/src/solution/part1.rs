@@ -1,9 +1,9 @@
-use crate::movement::Movement;
 use crate::utils::grid::{
     directions::{EAST, NORTH, SOUTH, WEST},
     Coordinate, Direction, Grid, Point,
 };
-use std::any::Any;
+
+use super::movement::Movement;
 
 #[derive(Debug)]
 struct Map {

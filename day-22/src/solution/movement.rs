@@ -1,3 +1,5 @@
+use core::fmt;
+
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum Movement {
     Forward(usize),
@@ -28,5 +30,14 @@ impl Movement {
 
         out.push(Movement::Forward(current_digit.parse().unwrap()));
         out
+    }
+}
+impl fmt::Display for Movement {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Movement::Forward(amount) => write!(f, "Forward({amount})"),
+            Movement::TurnRight => write!(f, "TurnRight"),
+            Movement::TurnLeft => write!(f, "TurnLeft"),
+        }
     }
 }

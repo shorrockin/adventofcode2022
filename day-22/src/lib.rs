@@ -1,13 +1,9 @@
-#![allow(dead_code, unused_variables, unused_imports, unused_mut)]
-mod instructions;
-mod movement;
-mod part1;
-mod part2;
-mod utils;
+pub mod solution;
+pub mod utils;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::solution::{instructions::*, part1, part2};
 
     static EXAMPLE_INPUT: &str = include_str!("../input.example.txt");
     static INPUT: &str = include_str!("../input.txt");
@@ -24,18 +20,15 @@ mod tests {
 
     #[test]
     fn test_part_two_example() {
-        use crate::instructions::*;
-
-        let size = 4;
         let instructions = Cube::new(
             4,
             vec![
-                Side::new(Facing::Top, 2, 0, |x, y| (x, 0, y)),
-                Side::new(Facing::Front, 2, 1, |x, y| (x, y, 3)),
-                Side::new(Facing::Left, 1, 1, |x, y| (0, y, x)),
-                Side::new(Facing::Back, 0, 1, |x, y| (3 - x, y, 0)),
-                Side::new(Facing::Bottom, 2, 2, |x, y| (x, 3, 3 - y)),
-                Side::new(Facing::Right, 2, 2, |x, y| (3, 3 - x, 3 - y)),
+                Side::new(Face::Top, 2, 0, |x, y| (x, 0, y)),
+                Side::new(Face::Front, 2, 1, |x, y| (x, y, 3)),
+                Side::new(Face::Left, 1, 1, |x, y| (0, y, x)),
+                Side::new(Face::Back, 0, 1, |x, y| (3 - x, y, 0)),
+                Side::new(Face::Bottom, 2, 2, |x, y| (x, 3, 3 - y)),
+                Side::new(Face::Right, 3, 2, |x, y| (3, 3 - x, 3 - y)),
             ],
         );
 
@@ -47,6 +40,18 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        // assert_eq!(99, part_two(INPUT));
+        let instructions = Cube::new(
+            50,
+            vec![
+                Side::new(Face::Top, 1, 0, |x, y| (x, 0, y)),
+                Side::new(Face::Right, 2, 0, |x, y| (49, x, y)),
+                Side::new(Face::Front, 1, 1, |x, y| (x, y, 49)),
+                Side::new(Face::Bottom, 1, 2, |x, y| (x, 49, 49 - y)),
+                Side::new(Face::Left, 0, 2, |x, y| (0, x, 49 - y)),
+                Side::new(Face::Back, 0, 3, |x, y| (y, x, 0)),
+            ],
+        );
+
+        assert_eq!(142380, part2::run(INPUT, instructions));
     }
 }
